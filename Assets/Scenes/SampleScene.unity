@@ -154,6 +154,9 @@ MonoBehaviour:
     type: 3}
   resolution: 50
   function: 4
+  transitionMode: 2
+  functionDuration: 1
+  transitionDuration: 1
 --- !u!4 &75389716
 Transform:
   m_ObjectHideFlags: 0
@@ -768,3 +771,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   display: {fileID: 1844483591}
+  displayMode: 0
+  sampleDuration: 1
