@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 0
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -130,7 +130,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 75389716}
-  - component: {fileID: 75389715}
   - component: {fileID: 75389717}
   m_Layer: 0
   m_Name: Graph
@@ -139,25 +138,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &75389715
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 75389714}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14cd06bfa92d53e4ebc0cde4a0e39db8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pointPrefab: {fileID: 5221897554875366738, guid: d73a635284aa0ca4eb9cc40879b3267d,
-    type: 3}
-  resolution: 200
-  function: 4
-  transitionMode: 2
-  functionDuration: 1
-  transitionDuration: 1
 --- !u!4 &75389716
 Transform:
   m_ObjectHideFlags: 0
@@ -184,7 +164,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e99d61420a0d1f459f961121d6fbe77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resolution: 200
+  computeShader: {fileID: 7200000, guid: c7f7fcb3b4a90614b80aa341489318e7, type: 3}
+  material: {fileID: 2100000, guid: e470d4aed9c37a448b5bccf749811b9d, type: 2}
+  mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  resolution: 1000
   function: 4
   transitionMode: 1
   functionDuration: 1
