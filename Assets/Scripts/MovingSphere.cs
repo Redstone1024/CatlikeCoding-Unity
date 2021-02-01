@@ -8,6 +8,12 @@ public class MovingSphere : MonoBehaviour
     [SerializeField, Range(0f, 100f)]
     private float maxAcceleration = 10f;
 
+    [SerializeField, Range(0f, 1f)]
+    private float bounciness = 0.5f;
+
+    [SerializeField]
+    private Rect allowedArea = new Rect(-5f, -5f, 10f, 10f);
+
     private Vector3 velocity;
 
     private void Update()
@@ -21,6 +27,32 @@ public class MovingSphere : MonoBehaviour
         velocity.x = Mathf.MoveTowards(velocity.x, desiredVelocity.x, maxSpeedChange);
         velocity.z = Mathf.MoveTowards(velocity.z, desiredVelocity.z, maxSpeedChange);
         var displacement = velocity * Time.deltaTime;
-        transform.localPosition += displacement;
+        var newPosition = transform.localPosition + displacement;
+        if (newPosition.x < allowedArea.xMin)
+        {
+            newPosition.x = allowedArea.xMin;
+            velocity.x = -velocity.x * bounciness;
+        }
+        else if (newPosition.x > allowedArea.xMax)
+        {
+            newPosition.x = allowedArea.xMax;
+            velocity.x = -velocity.x * bounciness;
+        }
+        if (newPosition.z < allowedArea.yMin)
+        {
+            newPosition.z = allowedArea.yMin;
+            velocity.z = -velocity.z * bounciness;
+        }
+        else if (newPosition.z > allowedArea.yMax)
+        {
+            newPosition.z = allowedArea.yMax;
+            velocity.z = -velocity.z * bounciness;
+        }
+        if (!allowedArea.Contains(new Vector2(newPosition.x, newPosition.z)))
+        {
+            newPosition.x = Mathf.Clamp(newPosition.x, allowedArea.xMin, allowedArea.xMax);
+            newPosition.z = Mathf.Clamp(newPosition.z, allowedArea.yMin, allowedArea.yMax);
+        }
+        transform.localPosition = newPosition;
     }
 }

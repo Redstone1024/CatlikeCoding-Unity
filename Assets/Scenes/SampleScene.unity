@@ -627,3 +627,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxSpeed: 10
+  maxAcceleration: 10
+  bounciness: 0.5
+  allowedArea:
+    serializedVersion: 2
+    x: -4.5
+    y: -4.5
+    width: 9
+    height: 9
