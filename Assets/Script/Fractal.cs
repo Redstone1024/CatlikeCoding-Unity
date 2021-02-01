@@ -52,7 +52,7 @@ public class Fractal : MonoBehaviour
 
     NativeArray<float3x4>[] matrices;
 
-    [SerializeField, Range(1, 8)]
+    [SerializeField, Range(2, 8)]
     int depth = 4;
 
     [SerializeField]
@@ -60,6 +60,9 @@ public class Fractal : MonoBehaviour
 
     [SerializeField]
     Material material = default;
+
+    [SerializeField]
+    Gradient gradient = default;
 
     static float3[] directions =
     {
@@ -84,6 +87,7 @@ public class Fractal : MonoBehaviour
 
     ComputeBuffer[] matricesBuffers;
 
+    static readonly int colorId = Shader.PropertyToID("_Color");
     static readonly int matricesId = Shader.PropertyToID("_Matrices");
 
     static MaterialPropertyBlock propertyBlock;
@@ -177,6 +181,7 @@ public class Fractal : MonoBehaviour
         {
             ComputeBuffer buffer = matricesBuffers[i];
             buffer.SetData(matrices[i]);
+            propertyBlock.SetColor(colorId, gradient.Evaluate(i / (matricesBuffers.Length - 1f)));
             propertyBlock.SetBuffer(matricesId, buffer);
             Graphics.DrawMeshInstancedProcedural(mesh, 0, material, bounds, buffer.count, propertyBlock);
         }
