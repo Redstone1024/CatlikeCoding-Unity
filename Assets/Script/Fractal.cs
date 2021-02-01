@@ -53,12 +53,15 @@ public class Fractal : MonoBehaviour
 
     NativeArray<float3x4>[] matrices;
 
-    [SerializeField, Range(2, 8)]
+    [SerializeField, Range(3, 8)]
     int depth = 4;
 
     [SerializeField]
     Mesh mesh = default;
 
+    [SerializeField]
+    Mesh leafMesh = default;
+    
     [SerializeField]
     Material material = default;
 
@@ -67,6 +70,12 @@ public class Fractal : MonoBehaviour
 
     [SerializeField]
     Gradient gradientB = default;
+
+    [SerializeField]
+    Color leafColorA = default;
+
+    [SerializeField]
+    Color leafColorB = default;
 
     static float3[] directions =
     {
@@ -112,7 +121,7 @@ public class Fractal : MonoBehaviour
             parts[i] = new NativeArray<FractalPart>(length, Allocator.Persistent);
             matrices[i] = new NativeArray<float3x4>(length, Allocator.Persistent);
             matricesBuffers[i] = new ComputeBuffer(length, stride);
-            sequenceNumbers[i] = new Vector4(Random.value, Random.value);
+            sequenceNumbers[i] = new Vector4(Random.value, Random.value, Random.value, Random.value);
         }
         
         parts[0][0] = CreatePart(0);
@@ -188,8 +197,25 @@ public class Fractal : MonoBehaviour
         jobHandle.Complete();
 
         var bounds = new Bounds(rootPart.worldPosition, float3(3f * objectScale));
+        int leafIndex = matricesBuffers.Length - 1;
         for (int i = 0; i < matricesBuffers.Length; i++)
         {
+            Mesh instanceMesh;
+            Color colorA, colorB;
+            if (i == leafIndex)
+            {
+                colorA = leafColorA;
+                colorB = leafColorB;
+                instanceMesh = leafMesh;
+            }
+            else
+            {
+                colorA = gradientA.Evaluate(i / (matricesBuffers.Length - 2f));
+                colorB = gradientB.Evaluate(i / (matricesBuffers.Length - 2f));
+                instanceMesh = mesh;
+            }
+            propertyBlock.SetColor(colorAId, colorA);
+            propertyBlock.SetColor(colorBId, colorB);
             ComputeBuffer buffer = matricesBuffers[i];
             buffer.SetData(matrices[i]);
             float gradientInterpolator = i / (matricesBuffers.Length - 1f);
@@ -197,7 +223,7 @@ public class Fractal : MonoBehaviour
             propertyBlock.SetColor(colorBId, gradientB.Evaluate(gradientInterpolator));
             propertyBlock.SetBuffer(matricesId, buffer);
             propertyBlock.SetVector(sequenceNumbersId, sequenceNumbers[i]);
-            Graphics.DrawMeshInstancedProcedural(mesh, 0, material, bounds, buffer.count, propertyBlock);
+            Graphics.DrawMeshInstancedProcedural(instanceMesh, 0, material, bounds, buffer.count, propertyBlock);
         }
     }
 }
