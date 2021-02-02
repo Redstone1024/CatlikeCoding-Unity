@@ -1001,6 +1001,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxSpeed: 10
   maxAcceleration: 10
+  jumpHeight: 2
+  maxAirJumps: 1
 --- !u!54 &1695436951
 Rigidbody:
   m_ObjectHideFlags: 0
