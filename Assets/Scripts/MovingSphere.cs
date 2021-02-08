@@ -17,6 +17,15 @@ public class MovingSphere : MonoBehaviour
     [SerializeField, Range(0f, 90f)]
     private float maxGroundAngle = 25f;
 
+    [SerializeField, Range(0f, 100f)]
+    float maxSnapSpeed = 100f;
+
+    [SerializeField, Min(0f)]
+    float probeDistance = 1f;
+
+    [SerializeField]
+    LayerMask probeMask = -1;
+
     private Rigidbody body;
 
     private Vector3 desiredVelocity = new Vector3(0f, 0f, 0f);
@@ -28,6 +37,7 @@ public class MovingSphere : MonoBehaviour
     private Vector3 velocity;
     private Vector3 contactNormal;
     private float minGroundDotProduct;
+    private int stepsSinceLastGrounded, stepsSinceLastJump;
 
     private void OnValidate()
     {
@@ -49,6 +59,10 @@ public class MovingSphere : MonoBehaviour
         desiredVelocity = new Vector3(playerInput.x, 0f, playerInput.y) * maxSpeed;
 
         desiredJump |= Input.GetButtonDown("Jump");
+
+        GetComponent<MeshRenderer>().material.SetColor(
+            "_BaseColor", onGround ? Color.black : Color.white
+        );
     }
 
     private void FixedUpdate()
@@ -70,10 +84,13 @@ public class MovingSphere : MonoBehaviour
 
     private void UpdateState()
     {
+        stepsSinceLastGrounded++;
+        stepsSinceLastJump++;
         velocity = body.velocity;
-        if (onGround)
+        if (onGround || SnapToGround())
         {
             jumpPhase = 0;
+            stepsSinceLastGrounded = 0;
             if (groundContactCount > 1)
             {
                 contactNormal.Normalize();
@@ -112,6 +129,7 @@ public class MovingSphere : MonoBehaviour
     {
         if (onGround || jumpPhase < maxAirJumps)
         {
+            stepsSinceLastJump = 0;
             jumpPhase++;
             float jumpSpeed = Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
             float alignedSpeed = Vector3.Dot(velocity, contactNormal);
@@ -147,9 +165,39 @@ public class MovingSphere : MonoBehaviour
         return vector - contactNormal * Vector3.Dot(vector, contactNormal);
     }
 
-    void ClearState()
+    private void ClearState()
     {
         groundContactCount = 0;
         contactNormal = Vector3.zero;
+    }
+
+    private bool SnapToGround()
+    {
+        if (stepsSinceLastGrounded > 1 || stepsSinceLastJump <= 2)
+        {
+            return false;
+        }
+        float speed = velocity.magnitude;
+        if (speed > maxSnapSpeed)
+        {
+            return false;
+        }
+        if (!Physics.Raycast(body.position, Vector3.down, out RaycastHit hit, probeDistance, probeMask))
+        {
+            return false;
+        }
+        if (hit.normal.y < minGroundDotProduct)
+        {
+            return false;
+        }
+
+        groundContactCount = 1;
+        contactNormal = hit.normal;
+        float dot = Vector3.Dot(velocity, hit.normal);
+        if (dot > 0f)
+        {
+            velocity = (velocity - hit.normal * dot).normalized * speed;
+        }
+        return true;
     }
 }
